@@ -36,6 +36,7 @@
             state: started
             volumes:
                 - "/home/rhel/tasks/task10/index.html:/usr/local/apache2/htdocs/index.html"
+                   # path of file which contain webpage code in docker host : path in container where the file will be copied
             ports:
                 - "100:80"
             command: "httpd -D FOREGROUND"
