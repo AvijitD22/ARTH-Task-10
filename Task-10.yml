@@ -1,0 +1,46 @@
+- hosts: localhost
+  vars:
+       - data: "{{  ansible_facts }}"
+
+  tasks:
+      - name: "Configuring Yum for Docker-CE"
+        ansible.builtin.copy:
+          content: "[Docker Repo]\nbaseurl=https://download.docker.com/linux/centos/7/x86_64/stable\ngpgcheck=0"
+          dest: "/etc/yum.repos.d/docker.repo"
+
+      - name: "Installing Docker"
+        command: "yum install docker-ce --nobest"
+        ignore_errors: yes
+        
+      - name: "Starting and Enabling  Docker Services"
+        service:
+            name: "docker"
+            state: started
+            enabled: yes
+            
+      - name: "Downloading docker-py"
+        pip:
+            name: "docker-py"
+            
+      - name: "Downloading HTTPD Image from DockerHub"
+        docker_image:
+            name: "httpd"
+            source: pull
+            
+      - name: "Creating Docker Container"
+        docker_container:
+            name: "My_Container"
+            image: "httpd"
+            interactive: yes
+            tty: yes
+            state: started
+            volumes:
+                - "/home/rhel/tasks/task10/index.html:/usr/local/apache2/htdocs/index.html"
+            ports:
+                - "100:80"
+            command: "httpd -D FOREGROUND"
+        register: data
+        
+      - name: "IP of created container"
+        debug:
+            msg: "{{ data.ansible_facts.docker_container.NetworkSettings.IPAddress }}"
