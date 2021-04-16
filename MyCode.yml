@@ -1,6 +1,8 @@
 - hosts: localhost
   vars:
        - Container_Image: "httpd"
+       - Path_of_Testpage: "/home/rhel/ws_test/git/task_10/ARTH-Task-10/Sample-HTML-Code.html"
+       - Container_Name: "My_Container"
 
   tasks:
       - name: "Configuring Yum for Docker-CE"
@@ -29,13 +31,13 @@
             
       - name: "Creating Docker Container"
         docker_container:
-            name: "My_Container"
+            name: "{{  Container_Name }}"
             image: "httpd"
             interactive: yes
             tty: yes
             state: started
             volumes:
-                - "/home/rhel/tasks/task10/index.html:/usr/local/apache2/htdocs/index.html"
+                - "{{  Path_of_Testpage  }}:/usr/local/apache2/htdocs/index.html"
                    # path of file which contain webpage code in docker host : path in container where the file will be copied
             ports:
                 - "100:80"
