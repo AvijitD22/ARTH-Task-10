@@ -1,6 +1,6 @@
 - hosts: localhost
   vars:
-       - data: "{{  ansible_facts }}"
+       - Container_Image: "httpd"
 
   tasks:
       - name: "Configuring Yum for Docker-CE"
@@ -24,7 +24,7 @@
             
       - name: "Downloading HTTPD Image from DockerHub"
         docker_image:
-            name: "httpd"
+            name: "{{  Container_Image  }}"
             source: pull
             
       - name: "Creating Docker Container"
