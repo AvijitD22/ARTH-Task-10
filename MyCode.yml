@@ -1,49 +1,52 @@
 - hosts: localhost
   vars:
        - Container_Image: "httpd"
-       - Path_of_Testpage: "/home/rhel/ws_test/git/task_10/ARTH-Task-10/Sample-HTML-Code.html"
+       - Path_of_Testpage_in_DockerHost: "/home/rhel/Task10/ARTH-Task-10/Sample-HTML-Code.html"
        - Container_Name: "My_Container"
+       - Yum_Repo_For_Docker: "/etc/yum.repos.d/docker.repo"
+       - Path_of_Testpage_inside_Container: "/usr/local/apache2/htdocs/index.html"
+       - Port_to_Expose: "100:80"
 
   tasks:
-      - name: "Configuring Yum for Docker-CE"
-        ansible.builtin.copy:
+       - name: "Configuring Yum for Docker-CE"
+         ansible.builtin.copy:
           content: "[Docker Repo]\nbaseurl=https://download.docker.com/linux/centos/7/x86_64/stable\ngpgcheck=0"
-          dest: "/etc/yum.repos.d/docker.repo"
+          dest: "{{  Yum_Repo_For_Docker  }}"
 
-      - name: "Installing Docker"
-        command: "yum install docker-ce --nobest"
-        ignore_errors: yes
+       - name: "Installing Docker"
+         command: "yum install docker-ce --nobest"
+         ignore_errors: yes
         
-      - name: "Starting and Enabling  Docker Services"
-        service:
+       - name: "Starting and Enabling  Docker Services"
+         service:
             name: "docker"
             state: started
             enabled: yes
             
-      - name: "Downloading docker-py"
-        pip:
+       - name: "Downloading docker-py"
+         pip:
             name: "docker-py"
             
-      - name: "Downloading HTTPD Image from DockerHub"
-        docker_image:
+       - name: "Downloading HTTPD Image from DockerHub"
+         docker_image:
             name: "{{  Container_Image  }}"
             source: pull
             
-      - name: "Creating Docker Container"
-        docker_container:
+       - name: "Creating Docker Container"
+         docker_container:
             name: "{{  Container_Name }}"
-            image: "httpd"
+            image: "{{  Container_Image }}"
             interactive: yes
             tty: yes
             state: started
             volumes:
-                - "{{  Path_of_Testpage  }}:/usr/local/apache2/htdocs/index.html"
+                - "{{  Path_of_Testpage_in_DockerHost  }}:{{  Path_of_Testpage_inside_Container  }}"
                    # path of file which contain webpage code in docker host : path in container where the file will be copied
             ports:
-                - "100:80"
+                - "{{  Port_to_Expose  }}"
             command: "httpd -D FOREGROUND"
-        register: data
+         register: data
         
-      - name: "IP of created container"
-        debug:
+       - name: "IP of created container"
+         debug:
             msg: "{{ data.ansible_facts.docker_container.NetworkSettings.IPAddress }}"
