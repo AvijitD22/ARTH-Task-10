@@ -1,7 +1,7 @@
 - hosts: localhost
   vars:
        - Container_Image: "httpd"
-       - Path_of_Testpage_in_DockerHost: "/home/rhel/Task10/ARTH-Task-10/Sample-HTML-Code.html"
+       - Path_of_Testpage_in_DockerHost: "./Sample-HTML-Code.html"
        - Container_Name: "My_Container"
        - Yum_Repo_For_Docker: "/etc/yum.repos.d/docker.repo"
        - Path_of_Testpage_inside_Container: "/usr/local/apache2/htdocs/index.html"
